@@ -1,12 +1,10 @@
 <template>
     <div>
         <h1 class="text-2xl font-bold mb-4">{{ pageTitle }}</h1>
-
         <div v-if="isLoading" class="text-center py-6">
             <p class="text-gray-600">Loading product data...</p>
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto mt-3"></div>
         </div>
-
         <div v-else-if="loadError" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
             role="alert">
             <strong class="font-bold">Error!</strong>
@@ -14,7 +12,6 @@
             <p><router-link :to="{ name: 'AdminProductList' }" class="text-red-700 underline font-medium">Return to
                     Products List</router-link></p>
         </div>
-
         <form v-else @submit.prevent="handleSubmit" class="space-y-4 bg-white p-6 rounded-lg shadow">
             <div>
                 <label for="productName" class="block text-sm font-medium text-gray-700">Product Name</label>
@@ -28,11 +25,9 @@
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     :disabled="isSubmitting"></textarea>
             </div>
-
             <p v-if="submitStatus" class="mt-4 text-sm" :class="submitError ? 'text-red-600' : 'text-green-600'">
                 {{ submitStatus }}
             </p>
-
             <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                 <router-link :to="{ name: 'AdminProductList' }"
                     class="inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -47,131 +42,94 @@
                 </button>
             </div>
         </form>
-
     </div>
 </template>
-
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter, RouterLink, onBeforeRouteLeave } from 'vue-router';
-// Import the apiService
 import apiService from '../../services/apiService';
-
 const props = defineProps({
-    id: { // Received from route params for editing
+    id: { 
         type: [String, Number],
         required: false,
         default: null,
     },
 });
-
 const router = useRouter();
-// Form model - use a nested object matching API payload structure
 const product = ref({
     name: '',
     description: ''
 });
-const isLoading = ref(false); // For initial data loading (edit mode)
-const isSubmitting = ref(false); // For form submission process
-const loadError = ref(null); // Error during initial data load
-const submitStatus = ref(''); // Feedback message after submission
-const submitError = ref(false); // Flag if submission resulted in error
-const initialData = ref(''); // To track changes before leaving page
-
-// Determine if we are editing based on the presence of the id prop
+const isLoading = ref(false); 
+const isSubmitting = ref(false); 
+const loadError = ref(null); 
+const submitStatus = ref(''); 
+const submitError = ref(false); 
+const initialData = ref(''); 
 const isEditing = computed(() => !!props.id);
 const productId = computed(() => props.id);
-
 const pageTitle = computed(() => isEditing.value ? `Edit Product (ID: ${productId.value})` : 'Create New Product');
-
-// --- Fetch product data if editing ---
 onMounted(() => {
     if (isEditing.value) {
         loadProductData();
     } else {
-        // Initialize for creation
         product.value = { name: '', description: '' };
-        initialData.value = JSON.stringify(product.value); // Store initial state for comparison
+        initialData.value = JSON.stringify(product.value); 
     }
 });
-
-// --- Function to load product data for editing ---
 async function loadProductData() {
     isLoading.value = true;
-    loadError.value = null; // Clear previous load errors
-    submitStatus.value = ''; // Clear previous submit status
+    loadError.value = null; 
+    submitStatus.value = ''; 
     try {
-        // Use the API service
         const response = await apiService.fetchProductDetails(productId.value);
-        // Assuming API returns the product object directly in response.data
         if (response.data) {
-            // Only update the fields used in the form
             product.value = {
                 name: response.data.name || '',
                 description: response.data.description || '',
             };
-            initialData.value = JSON.stringify(product.value); // Store initial state
+            initialData.value = JSON.stringify(product.value); 
         } else {
-            // Handle case where product ID is valid but data is missing
             throw new Error(`Product data not found for ID: ${productId.value}`);
         }
     } catch (err) {
         console.error('Failed to load product data:', err.response?.data || err.message);
         loadError.value = 'Failed to load product data. Please try again or go back.';
-        // Optionally disable form or redirect
     } finally {
         isLoading.value = false;
     }
 }
-
-// --- Function to handle form submission (Create or Update) ---
 async function handleSubmit() {
     isSubmitting.value = true;
-    submitStatus.value = ''; // Clear previous status
+    submitStatus.value = ''; 
     submitError.value = false;
-    // Construct payload matching API spec: { product: { ... } }
     const payload = { product: { ...product.value } };
-
     try {
         let response;
         if (isEditing.value) {
-            // --- Update existing product ---
             submitStatus.value = 'Updating product...';
-            // Use the API service
             response = await apiService.updateProduct(productId.value, payload);
             submitStatus.value = 'Product updated successfully!';
-            initialData.value = JSON.stringify(product.value); // Update initial state after successful save
+            initialData.value = JSON.stringify(product.value); 
         } else {
-            // --- Create new product ---
             submitStatus.value = 'Creating product...';
-            // Use the API service
             response = await apiService.createProduct(payload);
             submitStatus.value = 'Product created successfully!';
-            const newProductId = response.data?.id; // Adjust based on actual API response structure
-
-            // Navigate to the edit page of the newly created product
+            const newProductId = response.data?.id; 
             if (newProductId) {
-                // Use replace to avoid the 'create' page being in history
                 router.replace({ name: 'AdminProductEdit', params: { id: newProductId } });
-                // Note: onMounted in the edit view will now fetch the data we just created
             } else {
-                // Fallback if ID isn't returned: go back to list and show warning
                 console.warn("API did not return new product ID after creation.");
                 router.push({ name: 'AdminProductList' });
             }
         }
         console.log('API Response:', response);
-
-        // Clear success message after delay
         setTimeout(() => { if (!submitError.value) submitStatus.value = ''; }, 3000);
-
     } catch (err) {
         const action = isEditing.value ? 'updating' : 'creating';
         console.error(`Error ${action} product:`, err.response?.data || err.message);
         submitStatus.value = `Error ${action} product. Please check the details and try again.`;
-        // Extract specific errors if API provides them (e.g., validation errors)
         if (err.response?.data?.errors) {
-            // Format errors for display (example: join messages)
             const errorDetails = Object.entries(err.response.data.errors)
                 .map(([field, messages]) => `${field} ${messages.join(', ')}`)
                 .join('; ');
@@ -182,23 +140,16 @@ async function handleSubmit() {
         isSubmitting.value = false;
     }
 }
-
-// --- Warn user if they try to leave with unsaved changes ---
 onBeforeRouteLeave((to, from) => {
-    // Only check if not currently submitting
     if (!isSubmitting.value) {
         const currentData = JSON.stringify(product.value);
         if (currentData !== initialData.value) {
             const answer = window.confirm('You have unsaved changes! Are you sure you want to leave?');
-            if (!answer) return false; // Stay on page
+            if (!answer) return false; 
         }
     }
-    // Allow navigation
     return true;
 });
-
 </script>
-
 <style scoped>
-/* Add component-specific styles if needed */
 </style>

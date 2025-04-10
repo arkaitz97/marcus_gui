@@ -14,7 +14,6 @@
             <p v-else-if="productError"><router-link :to="{ name: 'AdminProductList' }"
                     class="text-red-700 underline font-medium">Return to Products List</router-link></p>
         </div>
-
         <div v-else-if="product && part">
             <div class="mb-4">
                 <nav class="text-sm mb-2" aria-label="Breadcrumb">
@@ -22,8 +21,8 @@
                         <li class="flex items-center">
                             <router-link :to="{ name: 'AdminProductList' }"
                                 class="text-gray-500 hover:text-blue-600">Products</router-link>
-                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 320 512">
+                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http:
+                                viewBox=" 0 0 320 512">
                                 <path
                                     d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
                             </svg>
@@ -31,8 +30,8 @@
                         <li class="flex items-center">
                             <router-link :to="{ name: 'AdminProductParts', params: { productId: productId } }"
                                 class="text-gray-500 hover:text-blue-600">{{ product.name }} Parts</router-link>
-                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 320 512">
+                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http:
+                                viewBox=" 0 0 320 512">
                                 <path
                                     d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
                             </svg>
@@ -47,7 +46,6 @@
                 </h1>
                 <p class="text-sm text-gray-600">Product: {{ product.name }} (ID: {{ productId }})</p>
             </div>
-
             <form @submit.prevent="addOption"
                 class="mb-6 p-4 bg-white rounded-lg shadow grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div class="md:col-span-2">
@@ -83,7 +81,6 @@
             <p v-if="submitStatus" class="mb-4 text-sm" :class="submitError ? 'text-red-600' : 'text-green-600'">
                 {{ submitStatus }}
             </p>
-
             <h2 class="text-xl font-semibold mb-3 text-gray-700">Existing Options</h2>
             <div v-if="isLoadingOptions" class="text-center py-6">
                 <p class="text-gray-600">Loading options...</p>
@@ -94,7 +91,6 @@
                 <strong class="font-bold">Error!</strong>
                 <span class="block sm:inline"> {{ optionsError }}</span>
             </div>
-
             <div v-else-if="options.length > 0" class="bg-white shadow overflow-x-auto sm:rounded-lg">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -183,58 +179,41 @@
                     </tbody>
                 </table>
             </div>
-
             <div v-else class="text-center py-10 border-2 border-dashed border-gray-300 rounded-lg">
                 <p class="text-lg text-gray-600">No options found for this part.</p>
                 <p class="mt-2 text-sm text-gray-500">Use the form above to add the first option.</p>
             </div>
-
         </div>
     </div>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import apiService from '../../services/apiService';
 import { Plus, Trash2, Settings, Edit, Check, X } from 'lucide-vue-next';
-
 const props = defineProps({
     productId: { type: [String, Number], required: true },
     partId: { type: [String, Number], required: true }
 });
-
 const route = useRoute();
-
-// State for fetched data
 const product = ref(null);
 const part = ref(null);
 const options = ref([]);
-
-// State for loading and errors
 const isLoadingProduct = ref(false);
 const isLoadingPart = ref(false);
 const isLoadingOptions = ref(false);
 const productError = ref(null);
 const partError = ref(null);
 const optionsError = ref(null);
-
-// State for forms and submissions
 const newOptionForm = reactive({ name: '', price: 0.00, in_stock: true });
 const isSubmittingOption = ref(false);
 const submitStatus = ref('');
 const submitError = ref(false);
-const isDeleting = reactive({}); // Track deleting state per option ID
-
-// State for inline editing
-const editingOptionId = ref(null); // ID of the option currently being edited
+const isDeleting = reactive({});
+const editingOptionId = ref(null);
 const editFormData = reactive({ id: null, name: '', price: 0.00, in_stock: true });
-const isUpdatingOption = ref(false); // Loading state for the update action
-
-// Computed property to disable edit/delete buttons while another row is being edited
+const isUpdatingOption = ref(false);
 const isEditing = computed(() => editingOptionId.value !== null);
-
-// Fetch context data (product, part) and options list
 onMounted(async () => {
     isLoadingProduct.value = true;
     isLoadingPart.value = true;
@@ -242,9 +221,7 @@ onMounted(async () => {
     productError.value = null;
     partError.value = null;
     optionsError.value = null;
-    submitStatus.value = ''; // Clear previous status
-
-    // Fetch product (for context/name)
+    submitStatus.value = '';
     try {
         const productResponse = await apiService.fetchProductDetails(props.productId);
         if (!productResponse.data) throw new Error(`Product ${props.productId} not found.`);
@@ -255,10 +232,7 @@ onMounted(async () => {
     } finally {
         isLoadingProduct.value = false;
     }
-
-    // Fetch part (for context/name)
     try {
-        // Ensure product loaded before fetching part
         if (!product.value) throw new Error("Cannot fetch part without product details.");
         const partResponse = await apiService.fetchPartDetails(props.productId, props.partId);
         if (!partResponse.data) throw new Error(`Part ${props.partId} not found.`);
@@ -269,11 +243,8 @@ onMounted(async () => {
     } finally {
         isLoadingPart.value = false;
     }
-
-    // Fetch options list only if product and part loaded successfully
     if (product.value && part.value) {
         try {
-            // Use API Service
             const optionsResponse = await apiService.fetchPartOptions(props.productId, props.partId);
             options.value = optionsResponse.data || [];
         } catch (err) {
@@ -283,40 +254,27 @@ onMounted(async () => {
             isLoadingOptions.value = false;
         }
     } else {
-        // Don't try loading options if context failed
         isLoadingOptions.value = false;
     }
 });
-
-// Format price utility
 const formatPrice = (price) => {
     const num = parseFloat(price);
     return isNaN(num) ? '0.00' : num.toFixed(2);
 };
-
-// --- Add a new option ---
 async function addOption() {
     if (!newOptionForm.name.trim()) return;
-
     isSubmittingOption.value = true;
     submitStatus.value = 'Adding option...';
     submitError.value = false;
-    // Payload expected by API
     const payload = { part_option: { ...newOptionForm } };
-    // Ensure price is correctly formatted if needed by API (e.g., as string)
-    // payload.part_option.price = formatPrice(newOptionForm.price);
-
     try {
-        // Use API Service
         const response = await apiService.createPartOption(props.productId, props.partId, payload);
         if (response.data) {
-            options.value.push(response.data); // Add to local list
+            options.value.push(response.data);
             submitStatus.value = 'Option added successfully!';
-            // Reset form
             newOptionForm.name = '';
             newOptionForm.price = 0.00;
             newOptionForm.in_stock = true;
-            // Clear success message after delay
             setTimeout(() => { submitStatus.value = ''; }, 3000);
         } else {
             throw new Error("API did not return created option data.");
@@ -332,60 +290,42 @@ async function addOption() {
         isSubmittingOption.value = false;
     }
 }
-
-// --- Start editing an option ---
 function startEditing(option) {
-    // Prevent starting edit if another is already in progress
     if (isEditing.value) return;
     editingOptionId.value = option.id;
-    // Copy data to edit form state
     editFormData.id = option.id;
     editFormData.name = option.name;
-    editFormData.price = parseFloat(option.price || 0); // Ensure it's a number for input
+    editFormData.price = parseFloat(option.price || 0);
     editFormData.in_stock = option.in_stock;
-    submitStatus.value = ''; // Clear any previous status messages
+    submitStatus.value = '';
 }
-
-// --- Cancel editing ---
 function cancelEditing() {
     editingOptionId.value = null;
-    isUpdatingOption.value = false; // Ensure update loading state is reset
-    // Optionally clear editFormData if needed
-    // editFormData.id = null; editFormData.name = ''; ...
+    isUpdatingOption.value = false;
 }
-
-// --- Update an existing option ---
 async function updateOption() {
     if (!editFormData.id || !editFormData.name.trim()) return;
-
-    isUpdatingOption.value = true; // Set loading state for update
+    isUpdatingOption.value = true;
     submitStatus.value = `Updating option ${editFormData.id}...`;
     submitError.value = false;
-
-    // Construct payload
     const payload = {
         part_option: {
             name: editFormData.name,
-            price: editFormData.price, // Send as number, API should handle
+            price: editFormData.price,
             in_stock: editFormData.in_stock
         }
     };
-
     try {
-        // Use API Service
         const response = await apiService.updatePartOption(props.productId, props.partId, editFormData.id, payload);
-        // Update the local options array
         const index = options.value.findIndex(opt => opt.id === editFormData.id);
         if (index !== -1 && response.data) {
-            options.value[index] = response.data; // Update with data from API response
+            options.value[index] = response.data;
         } else if (index !== -1) {
-            // Fallback if API doesn't return updated object
-            options.value[index] = { ...options.value[index], ...payload.part_option, id: editFormData.id }; // Ensure ID is preserved
+            options.value[index] = { ...options.value[index], ...payload.part_option, id: editFormData.id };
             console.warn("API did not return updated option object, updated manually in list.");
         }
         submitStatus.value = 'Option updated successfully!';
-        cancelEditing(); // Exit editing mode
-        // Clear success message after delay
+        cancelEditing();
         setTimeout(() => { submitStatus.value = ''; }, 3000);
     } catch (err) {
         console.error('Failed to update option:', err.response?.data || err.message);
@@ -394,50 +334,34 @@ async function updateOption() {
             submitStatus.value += ` Details: ${JSON.stringify(err.response.data.errors)}`;
         }
         submitError.value = true;
-        // Keep editing mode open on error to allow correction
     } finally {
-        isUpdatingOption.value = false; // Reset loading state for update
+        isUpdatingOption.value = false;
     }
 }
-
-
-// --- Delete an option ---
 async function deleteOption(optionId) {
-    // Prevent deletion while editing another option
     if (isEditing.value) return;
-
     if (!confirm(`Are you sure you want to delete option ID ${optionId}? This might affect existing configurations/orders.`)) {
         return;
     }
-
-    isDeleting[optionId] = true; // Set loading state for this specific option
-    submitStatus.value = `Deleting option ${optionId}...`; // Show status
+    isDeleting[optionId] = true;
+    submitStatus.value = `Deleting option ${optionId}...`;
     submitError.value = false;
-
     try {
-        // Use API Service
         await apiService.deletePartOption(props.productId, props.partId, optionId);
-        // Remove the option from the local list
         options.value = options.value.filter(opt => opt.id !== optionId);
         submitStatus.value = `Option ${optionId} deleted successfully.`;
-        // Clear success message after delay
         setTimeout(() => { submitStatus.value = ''; }, 3000);
     } catch (err) {
         console.error(`Failed to delete option ${optionId}:`, err.response?.data || err.message);
         submitStatus.value = `Failed to delete option ${optionId}.`;
         submitError.value = true;
     } finally {
-        // Remove loading state for this option
         delete isDeleting[optionId];
     }
 }
-
 </script>
-
 <style scoped>
-/* Additional styles if needed, e.g., for inline editing row */
 .bg-yellow-50 {
-    /* Or another subtle highlight for the editing row */
     background-color: #fffbeb;
 }
 </style>

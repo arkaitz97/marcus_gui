@@ -4,7 +4,5 @@
         <p>Welcome to the admin area.</p>
     </div>
 </template>
-
 <script setup>
-// Dashboard logic if needed
 </script>

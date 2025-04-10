@@ -3,7 +3,6 @@
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Manage Part Restrictions</h1>
         <p class="text-sm text-gray-600 mb-4">Define rules where selecting one option prevents selecting another
             specific option.</p>
-
         <form @submit.prevent="addRestriction"
             class="mb-6 p-4 bg-white rounded-lg shadow grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
             <div>
@@ -34,7 +33,6 @@
         <p v-if="submitStatus" class="mb-4 text-sm" :class="submitError ? 'text-red-600' : 'text-green-600'">
             {{ submitStatus }}
         </p>
-
         <h2 class="text-xl font-semibold mb-3 text-gray-700">Existing Restrictions</h2>
         <div v-if="isLoading" class="text-center py-6">
             <p class="text-gray-600">Loading restrictions...</p>
@@ -75,13 +73,10 @@
         </div>
     </div>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-// Import the apiService
 import apiService from '../../services/apiService';
 import { Ban, Trash2 } from 'lucide-vue-next';
-
 const restrictions = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
@@ -89,21 +84,17 @@ const isSubmitting = ref(false);
 const submitStatus = ref('');
 const submitError = ref(false);
 const isDeleting = reactive({});
-
 const newRestriction = reactive({
     part_option_id: null,
     restricted_part_option_id: null,
 });
-
-// --- Fetch restrictions on mount ---
 onMounted(async () => {
     isLoading.value = true;
     error.value = null;
-    submitStatus.value = ''; // Clear previous status
+    submitStatus.value = ''; 
     try {
-        // Use API Service
         const response = await apiService.fetchRestrictions();
-        restrictions.value = response.data || []; // Assuming API returns array in response.data
+        restrictions.value = response.data || []; 
     } catch (err) {
         console.error('Failed to fetch restrictions:', err.response?.data || err.message);
         error.value = 'Failed to load restrictions. Please try again later.';
@@ -111,10 +102,7 @@ onMounted(async () => {
         isLoading.value = false;
     }
 });
-
-// --- Add a new restriction ---
 async function addRestriction() {
-    // Basic Validation
     if (!newRestriction.part_option_id || !newRestriction.restricted_part_option_id) {
         submitStatus.value = 'Please enter both Part Option IDs.';
         submitError.value = true;
@@ -125,24 +113,17 @@ async function addRestriction() {
         submitError.value = true;
         return;
     }
-
     isSubmitting.value = true;
     submitStatus.value = 'Adding restriction...';
     submitError.value = false;
-    // Construct payload expected by API
     const payload = { part_restriction: { ...newRestriction } };
-
     try {
-        // Use API Service
         const response = await apiService.createRestriction(payload);
-        // Assuming API returns the created restriction object in response.data
         if (response.data) {
-            restrictions.value.push(response.data); // Add to local list
+            restrictions.value.push(response.data); 
             submitStatus.value = 'Restriction added successfully!';
-            // Reset form
             newRestriction.part_option_id = null;
             newRestriction.restricted_part_option_id = null;
-            // Clear success message after delay
             setTimeout(() => { submitStatus.value = ''; }, 3000);
         } else {
             throw new Error("API did not return created restriction data.");
@@ -151,7 +132,6 @@ async function addRestriction() {
         console.error('Failed to add restriction:', err.response?.data || err.message);
         submitStatus.value = 'Failed to add restriction.';
         if (err.response?.data?.errors) {
-            // Format potential validation errors from API
             const errorDetails = Object.entries(err.response.data.errors)
                 .map(([field, messages]) => `${field} ${messages.join(', ')}`)
                 .join('; ');
@@ -162,31 +142,24 @@ async function addRestriction() {
         isSubmitting.value = false;
     }
 }
-
-// --- Delete a restriction ---
 async function deleteRestriction(restrictionId) {
     if (!confirm(`Are you sure you want to delete restriction ID ${restrictionId}?`)) {
         return;
     }
-    isDeleting[restrictionId] = true; // Set loading state for this specific item
-    submitStatus.value = `Deleting restriction ${restrictionId}...`; // Provide feedback
+    isDeleting[restrictionId] = true; 
+    submitStatus.value = `Deleting restriction ${restrictionId}...`; 
     submitError.value = false;
     try {
-        // Use API Service
         await apiService.deleteRestriction(restrictionId);
-        // Remove the restriction from the local list for immediate UI update
         restrictions.value = restrictions.value.filter(r => r.id !== restrictionId);
         submitStatus.value = `Restriction ${restrictionId} deleted successfully.`;
-        // Clear success message after delay
         setTimeout(() => { submitStatus.value = ''; }, 3000);
     } catch (err) {
         console.error(`Failed to delete restriction ${restrictionId}:`, err.response?.data || err.message);
         submitStatus.value = `Failed to delete restriction ${restrictionId}.`;
         submitError.value = true;
     } finally {
-        // Remove loading state for this item
         delete isDeleting[restrictionId];
     }
 }
-
 </script>

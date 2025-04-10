@@ -3,7 +3,6 @@
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Manage Price Rules</h1>
         <p class="text-sm text-gray-600 mb-4">Define price premiums applied when specific pairs of options are selected
             together.</p>
-
         <form @submit.prevent="addPriceRule"
             class="mb-6 p-4 bg-white rounded-lg shadow grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
@@ -40,7 +39,6 @@
         <p v-if="submitStatus" class="mb-4 text-sm" :class="submitError ? 'text-red-600' : 'text-green-600'">
             {{ submitStatus }}
         </p>
-
         <h2 class="text-xl font-semibold mb-3 text-gray-700">Existing Price Rules</h2>
         <div v-if="isLoading" class="text-center py-6">
             <p class="text-gray-600">Loading price rules...</p>
@@ -81,13 +79,10 @@
         </div>
     </div>
 </template>
-
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
-// Import the apiService
 import apiService from '../../services/apiService';
 import { DollarSign, Trash2 } from 'lucide-vue-next';
-
 const priceRules = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
@@ -95,28 +90,22 @@ const isSubmitting = ref(false);
 const submitStatus = ref('');
 const submitError = ref(false);
 const isDeleting = reactive({});
-
 const newPriceRule = reactive({
     part_option_a_id: null,
     part_option_b_id: null,
     price_premium: null,
 });
-
-// Format price utility
 const formatPrice = (price) => {
     const num = parseFloat(price);
     return isNaN(num) ? '0.00' : num.toFixed(2);
 };
-
-// --- Fetch price rules on mount ---
 onMounted(async () => {
     isLoading.value = true;
     error.value = null;
-    submitStatus.value = ''; // Clear previous status
+    submitStatus.value = ''; 
     try {
-        // Use API Service
         const response = await apiService.fetchPriceRules();
-        priceRules.value = response.data || []; // Assuming API returns array in response.data
+        priceRules.value = response.data || []; 
     } catch (err) {
         console.error('Failed to fetch price rules:', err.response?.data || err.message);
         error.value = 'Failed to load price rules. Please try again later.';
@@ -124,10 +113,7 @@ onMounted(async () => {
         isLoading.value = false;
     }
 });
-
-// --- Add a new price rule ---
 async function addPriceRule() {
-    // Basic Validation
     if (!newPriceRule.part_option_a_id || !newPriceRule.part_option_b_id || newPriceRule.price_premium === null || newPriceRule.price_premium < 0) {
         submitStatus.value = 'Please enter two valid Part Option IDs and a non-negative Price Premium.';
         submitError.value = true;
@@ -138,31 +124,23 @@ async function addPriceRule() {
         submitError.value = true;
         return;
     }
-
     isSubmitting.value = true;
     submitStatus.value = 'Adding price rule...';
     submitError.value = false;
-    // Construct payload expected by API
     const payload = {
         price_rule: {
             ...newPriceRule,
-            // Ensure price_premium is a number or string as expected by API
-            price_premium: parseFloat(newPriceRule.price_premium) // Sending as number
+            price_premium: parseFloat(newPriceRule.price_premium) 
         }
     };
-
     try {
-        // Use API Service
         const response = await apiService.createPriceRule(payload);
-        // Assuming API returns the created rule object in response.data
         if (response.data) {
-            priceRules.value.push(response.data); // Add to local list
+            priceRules.value.push(response.data); 
             submitStatus.value = 'Price rule added successfully!';
-            // Reset form
             newPriceRule.part_option_a_id = null;
             newPriceRule.part_option_b_id = null;
             newPriceRule.price_premium = null;
-            // Clear success message after delay
             setTimeout(() => { submitStatus.value = ''; }, 3000);
         } else {
             throw new Error("API did not return created price rule data.");
@@ -171,7 +149,6 @@ async function addPriceRule() {
         console.error('Failed to add price rule:', err.response?.data || err.message);
         submitStatus.value = 'Failed to add price rule.';
         if (err.response?.data?.errors) {
-            // Format potential validation errors from API
             const errorDetails = Object.entries(err.response.data.errors)
                 .map(([field, messages]) => `${field} ${messages.join(', ')}`)
                 .join('; ');
@@ -182,31 +159,24 @@ async function addPriceRule() {
         isSubmitting.value = false;
     }
 }
-
-// --- Delete a price rule ---
 async function deletePriceRule(ruleId) {
     if (!confirm(`Are you sure you want to delete price rule ID ${ruleId}?`)) {
         return;
     }
-    isDeleting[ruleId] = true; // Set loading state for this specific item
-    submitStatus.value = `Deleting price rule ${ruleId}...`; // Provide feedback
+    isDeleting[ruleId] = true; 
+    submitStatus.value = `Deleting price rule ${ruleId}...`; 
     submitError.value = false;
     try {
-        // Use API Service
         await apiService.deletePriceRule(ruleId);
-        // Remove the rule from the local list for immediate UI update
         priceRules.value = priceRules.value.filter(r => r.id !== ruleId);
         submitStatus.value = `Price rule ${ruleId} deleted successfully.`;
-        // Clear success message after delay
         setTimeout(() => { submitStatus.value = ''; }, 3000);
     } catch (err) {
         console.error(`Failed to delete price rule ${ruleId}:`, err.response?.data || err.message);
         submitStatus.value = `Failed to delete price rule ${ruleId}.`;
         submitError.value = true;
     } finally {
-        // Remove loading state for this item
         delete isDeleting[ruleId];
     }
 }
-
 </script>

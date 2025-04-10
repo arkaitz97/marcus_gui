@@ -1,18 +1,15 @@
 <template>
     <div class="admin-order-list-view p-4">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">Manage Orders</h1>
-
         <div v-if="isLoading" class="text-center py-10">
             <p class="text-gray-600">Loading orders...</p>
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mt-4"></div>
         </div>
-
         <div v-else-if="error" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
             role="alert">
             <strong class="font-bold">Error!</strong>
             <span class="block sm:inline"> {{ error }}</span>
         </div>
-
         <div v-else-if="orders.length > 0" class="bg-white shadow overflow-x-auto sm:rounded-lg">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -66,79 +63,58 @@
                 </tbody>
             </table>
         </div>
-
         <div v-else class="text-center py-10 border-2 border-dashed border-gray-300 rounded-lg">
             <p class="text-lg text-gray-600">No orders found.</p>
         </div>
-
     </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
-// Import the apiService
 import apiService from '../../services/apiService';
 import { Eye } from 'lucide-vue-next';
-
 const orders = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
-
-// Format currency utility
 const formatCurrency = (value) => {
     const amount = parseFloat(value);
     if (isNaN(amount)) {
         return 'N/A';
     }
-    return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); // Adjust currency as needed
+    return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); 
 };
-
-// Format date utility
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
         const date = new Date(dateString);
-        // Example format: Apr 8, 2025, 03:15 AM
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }); // Adjust locale/options
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true }); 
     } catch (e) {
         return 'Invalid Date';
     }
 };
-
-// Get CSS class based on order status (example)
 const statusClass = (status) => {
     status = status?.toLowerCase() || '';
     if (status === 'pending') return 'bg-yellow-100 text-yellow-800';
     if (status === 'processing') return 'bg-blue-100 text-blue-800';
     if (status === 'completed' || status === 'shipped') return 'bg-green-100 text-green-800';
     if (status === 'cancelled' || status === 'refunded') return 'bg-red-100 text-red-800';
-    return 'bg-gray-100 text-gray-800'; // Default/unknown status
+    return 'bg-gray-100 text-gray-800'; 
 };
-
-
-// --- Fetch orders on mount ---
 onMounted(async () => {
     isLoading.value = true;
     error.value = null;
     try {
-        // Use API Service
         const response = await apiService.fetchOrders();
-        // Assuming API returns an array of order objects in response.data
         orders.value = response.data || [];
-        // Optional: Sort orders, e.g., by date descending
         orders.value.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     } catch (err) {
         console.error('Failed to fetch orders:', err.response?.data || err.message);
         error.value = 'Failed to load orders. Please try again later.';
-        orders.value = []; // Ensure orders is empty on error
+        orders.value = []; 
     } finally {
         isLoading.value = false;
     }
 });
-
 </script>
-
 <style scoped>
-/* Add component-specific styles if needed */
 </style>

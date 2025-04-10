@@ -41,15 +41,9 @@
         </main>
     </div>
 </template>
-
 <script setup>
 import { RouterLink, RouterView } from 'vue-router';
-// Import necessary icons
 import { LayoutDashboard, Package, Ban, DollarSign, ShoppingCart, ArrowLeftCircle } from 'lucide-vue-next';
-
-// Layout logic if needed
 </script>
-
 <style scoped>
-/* Add specific styles for the layout if needed */
 </style>

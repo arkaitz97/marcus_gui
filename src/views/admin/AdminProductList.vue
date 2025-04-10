@@ -8,19 +8,16 @@
                 Create New Product
             </router-link>
         </div>
-
         <div v-if="isLoading" class="text-center py-6">
             <p class="text-gray-600">Loading products...</p>
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900 mx-auto mt-3"></div>
         </div>
-
         <div v-else-if="error"
             class="text-center py-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
             role="alert">
             <strong class="font-bold">Error!</strong>
             <span class="block sm:inline"> {{ error }}</span>
         </div>
-
         <div v-else-if="products.length > 0" class="bg-white shadow overflow-hidden sm:rounded-lg">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
@@ -65,27 +62,20 @@
                 </tbody>
             </table>
         </div>
-
         <div v-else class="text-center py-10 border-2 border-dashed border-gray-300 rounded-lg">
             <p class="text-lg text-gray-600">No products found.</p>
             <p class="mt-2 text-sm text-gray-500">Click the button above to create the first product.</p>
         </div>
-
     </div>
 </template>
-
 <script setup>
 import { ref, onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
 import apiService from '../../services/apiService';
-// Import new icon
 import { Plus, Edit, Trash2, ListTree } from 'lucide-vue-next';
-
 const products = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
-
-// Fetch products when component mounts
 onMounted(async () => {
     isLoading.value = true;
     error.value = null;
@@ -99,8 +89,6 @@ onMounted(async () => {
         isLoading.value = false;
     }
 });
-
-// Placeholder for delete functionality
 const handleDelete = async (productId) => {
     if (!confirm(`Are you sure you want to delete product ID ${productId}? This action cannot be undone.`)) {
         return;
@@ -109,18 +97,14 @@ const handleDelete = async (productId) => {
     try {
         await apiService.deleteProduct(productId);
         products.value = products.value.filter(p => p.id !== productId);
-        // alert(`Product ${productId} deleted successfully.`); // Use better notification
     } catch (err) {
         console.error(`Failed to delete product ${productId}:`, err);
         error.value = `Failed to delete product ${productId}. It might be associated with other data.`;
-        // alert(error.value); // Use better notification
     }
 };
 </script>
-
 <style scoped>
 .max-w-xs {
     max-width: 20rem;
-    /* Adjust as needed for description column */
 }
 </style>

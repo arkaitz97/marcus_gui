@@ -28,7 +28,7 @@ This repository contains the frontend application for Marcus's Bike Shop, built 
 
 ## Technology Stack
 
-* **Framework:** [Vue 3](https://vuejs.org/) (Composition API with `\<script setup\>`)  
+* **Framework:** [Vue 3](https://vuejs.org/) (Composition API with `<script setup>`)  
 * **Build Tool:** [Vite](https://vitejs.dev/)  
 * **Routing:** [Vue Router](https://router.vuejs.org/)  
 * **State Management:** [Pinia](https://pinia.vuejs.org/)  
@@ -45,61 +45,41 @@ This repository contains the frontend application for Marcus's Bike Shop, built 
 
 **Installation:**
 
-1\.  **Clone the repository (if applicable):**  
+1.  **Clone the repository (if applicable):**  
     ```bash  
-    git clone \<repository-url\>  
-    cd \<repository-directory\>  
+    git clone <repository-url>  
+    cd <repository-directory>  
     ```  
     *Or, if starting from scratch based on our build steps:*  
     ```bash  
-    # 1\. Create project  
+    # 1. Create project  
     npm create vite@latest marcus-bike-shop --template vue  
     cd marcus-bike-shop
 
-    # 2\. Install base dependencies  
+    # 2. Install base dependencies  
     npm install
 
-    # 3\. Install additional dependencies  
+    # 3. Install additional dependencies  
     npm install -D tailwindcss postcss autoprefixer  
     npm install pinia vue-router@next axios lucide-vue-next
 
-    # 4\. Initialize Tailwind  
+    # 4. Initialize Tailwind  
     npx tailwindcss init -p
 
-    # 5\. Configure tailwind.config.js, postcss.config.js, src/style.css  
+    # 5. Configure tailwind.config.js, postcss.config.js, src/style.css  
     #    (Refer to project files or build steps for specific configurations)
 
-    # 6\. Add project files (components, views, stores, router, services...)  
+    # 6. Add project files (components, views, stores, router, services...)  
     ```
 
-2\.  **Install Dependencies (if not starting from scratch):**  
+2.  **Install Dependencies (if not starting from scratch):**  
     ```bash  
     npm install  
     ```
 
 **Configuration:**
 
-1\.  **API Base URL:** The API base URL is configured in `src/services/apiService.js` (currently set to `/api/v1`).  
-2\.  **Vite Proxy (Development):** For the `/api/v1` base URL to work during development (`npm run dev`), you likely need to configure Vite's development server proxy in `vite.config.js` to forward requests to your running backend API server. Example:  
-    ```javascript  
-    // vite.config.js  
-    import { defineConfig } from 'vite'  
-    import vue from '@vitejs/plugin-vue'
-
-    export default defineConfig({  
-      plugins: [vue()],  
-      server: {  
-        proxy: {  
-          // Proxy /api/v1 requests to your backend server  
-          '/api/v1': {  
-            target: 'http://localhost:3000', // Your backend API URL  
-            changeOrigin: true,  
-            // rewrite: (path) \=\> path.replace(/^\\/api\\/v1/, '') // Uncomment if backend doesn't expect /api/v1 prefix  
-          }  
-        }  
-      }  
-    })  
-    ```
+1.  **API Base URL:** The API base URL is configured in `src/services/apiService.js` (currently set to `/api/v1`).  
 
 **Running the Development Server:**
 

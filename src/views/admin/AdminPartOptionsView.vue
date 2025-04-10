@@ -21,7 +21,7 @@
                         <li class="flex items-center">
                             <router-link :to="{ name: 'AdminProductList' }"
                                 class="text-gray-500 hover:text-blue-600">Products</router-link>
-                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http:
+                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http://www.w3.org/2000/svg"
                                 viewBox=" 0 0 320 512">
                                 <path
                                     d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
@@ -30,7 +30,7 @@
                         <li class="flex items-center">
                             <router-link :to="{ name: 'AdminProductParts', params: { productId: productId } }"
                                 class="text-gray-500 hover:text-blue-600">{{ product.name }} Parts</router-link>
-                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http:
+                            <svg class="fill-current w-3 h-3 mx-2 text-gray-500" xmlns="http://www.w3.org/2000/svg"
                                 viewBox=" 0 0 320 512">
                                 <path
                                     d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
@@ -113,7 +113,7 @@
                         <template v-for="option in options" :key="option.id">
                             <tr v-if="editingOptionId !== option.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ option.name
-                                }}</td>
+                                    }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${{
                                     formatPrice(option.price) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm">

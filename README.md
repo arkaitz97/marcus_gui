@@ -47,30 +47,9 @@ This repository contains the frontend application for Marcus's Bike Shop, built 
 
 1.  **Clone the repository (if applicable):**  
     ```bash  
-    git clone <repository-url>  
-    cd <repository-directory>  
+    git clone https://github.com/arkaitz97/marcus_gui
+    cd marcus_gui  
     ```  
-    *Or, if starting from scratch based on our build steps:*  
-    ```bash  
-    # 1. Create project  
-    npm create vite@latest marcus-bike-shop --template vue  
-    cd marcus-bike-shop
-
-    # 2. Install base dependencies  
-    npm install
-
-    # 3. Install additional dependencies  
-    npm install -D tailwindcss postcss autoprefixer  
-    npm install pinia vue-router@next axios lucide-vue-next
-
-    # 4. Initialize Tailwind  
-    npx tailwindcss init -p
-
-    # 5. Configure tailwind.config.js, postcss.config.js, src/style.css  
-    #    (Refer to project files or build steps for specific configurations)
-
-    # 6. Add project files (components, views, stores, router, services...)  
-    ```
 
 2.  **Install Dependencies (if not starting from scratch):**  
     ```bash  

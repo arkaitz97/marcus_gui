@@ -18,7 +18,7 @@ export const useCartStore = defineStore('cart', {
   actions: {
     addItemToCart(configuredBike) {
       console.log('Action: addItemToCart called', configuredBike);
-      if (!configuredBike || !configuredBike.productId || !configuredBike.selectedOptionIds || configuredBike.price === null || configuredBike.price === undefined) {
+      if (!configuredBike || !configuredBike.productId || !Array.isArray(configuredBike.selectedOptionIds) || configuredBike.selectedOptionIds.length === 0 || configuredBike.price === null || configuredBike.price === undefined) {
         console.error('addItemToCart: Invalid configuredBike data received.', configuredBike);
         return;
       }

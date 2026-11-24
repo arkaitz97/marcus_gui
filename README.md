@@ -42,7 +42,8 @@ Lucide icons. Tests with Vitest, lint with ESLint and `eslint-plugin-vue`.
 
 ## Run locally
 
-Requirements: Node 20 or later and a running `marcus_api` on port 3001.
+Requirements: Node 20.19 or later (CI uses 22) and a running `marcus_api` on
+port 3001.
 
 ```bash
 git clone https://github.com/arkaitz97/marcus_gui

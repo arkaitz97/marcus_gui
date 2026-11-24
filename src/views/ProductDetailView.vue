@@ -26,7 +26,7 @@
                     <h3 class="text-lg font-semibold mb-2 text-gray-700">Configuration Price:</h3>
                     <div class="text-3xl font-bold text-blue-700">
                         <span v-if="isCalculatingPrice">Calculating...</span>
-                        <span v-else-if="calculatedPrice !== null && calculatedPrice !== 'Error'">${{ calculatedPrice
+                        <span v-else-if="calculatedPrice !== null && calculatedPrice !== 'Error'">${{ Number(calculatedPrice).toFixed(2)
                         }}</span>
                         <span v-else-if="calculatedPrice === 'Error'" class="text-red-600 text-xl">Error calculating
                             price</span>

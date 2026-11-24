@@ -61,7 +61,7 @@ export const useCustomizationStore = defineStore('customization', {
     async calculateCurrentPrice() {
       const idsToPrice = this.selectedOptionIds;
       if (idsToPrice.length === 0) {
-          this.calculatedPrice = '0.00'; 
+          this.calculatedPrice = null; 
           this.isCalculatingPrice = false; 
           return;
       }

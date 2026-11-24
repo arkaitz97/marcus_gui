@@ -1,106 +1,116 @@
-# Marcus's Bike Shop - Vue 3 Frontend
+# Marcus's Bike Shop — configurator GUI
 
-This repository contains the frontend application for Marcus's Bike Shop, built with Vue 3 and Vite. It provides an interface for customers to browse, customize, and order bicycles online, as well as an administrative interface for managing products, options, rules, and orders.
+[![CI](https://github.com/arkaitz97/marcus_gui/actions/workflows/ci.yml/badge.svg)](https://github.com/arkaitz97/marcus_gui/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Features
+This is the front end of a bike configurator: a Vue 3 single-page app with a
+storefront and an admin area. The storefront lets a customer pick options, shows
+whether the current selection is valid and what it costs, and sends the order.
+The admin area maintains the same catalogue, the incompatibility pairs, the price
+rules and the order statuses. It is deliberately a separate application from the
+[API](https://github.com/arkaitz97/marcus_api) because the validity and pricing
+rules must run on the server: the browser asks, it never decides. The result is a
+small, readable SPA whose stores hold the client state and whose only authority is
+one JSON API.
 
-**Customer Facing:**
+![Product detail with a valid configuration](docs/screenshot.png)
 
-* **Product Listing:** Displays available bicycle products.  
-* **Product Detail & Customization:**  
-    * Shows detailed product information.  
-    * Allows selection of parts and options.  
-    * Placeholder for dynamic validation of selected options based on backend rules.  
-    * Placeholder for real-time price calculation based on selected options and backend rules.  
-    * Out-of-stock options are disabled.  
-* **Shopping Cart:** Users can add multiple configured bikes to a cart before placing orders.  
-* **Order Placement:** Users can place orders for the items in their cart (currently places one order per cart item via API).
+## Architecture
 
-**Admin Facing (`/admin`):**
+```mermaid
+flowchart LR
+  VIEWS["Views<br/>storefront + /admin"] -- "props, events" --> STORES["Pinia stores<br/>products, customization, cart"]
+  STORES -- "method calls" --> SERVICE["apiService<br/>axios"]
+  SERVICE -- "HTTP JSON, VITE_API_BASE_URL" --> API["marcus_api<br/>Rails 8"]
+  ROUTER["Vue Router<br/>lazy routes"] -. "mounts" .-> VIEWS
+```
 
-* **Dashboard:** Basic landing page for the admin section.  
-* **Product Management:** CRUD interface for Products.  
-* **Part Management:** CRUD interface for Parts associated with a Product.  
-* **Part Option Management:** CRUD interface for Part Options associated with a Part (includes inline editing).  
-* **Restriction Management:** Interface to list, add, and delete incompatible pairs of Part Options.  
-* **Price Rule Management:** Interface to list, add, and delete price premiums for specific pairs of Part Options.  
-* **Order Management:** List view for all orders and a detail view to inspect individual orders and update their status.
+- `src/views/` holds the screens. `/admin` is a nested layout with child routes
+  for products, parts, options, restrictions, price rules and orders.
+- `src/stores/productStore.js` loads the catalogue: one product, then its parts,
+  then the options of each part.
+- `src/stores/customizationStore.js` holds the current selection and calls
+  `validate_selection` and `calculate_price` after every change.
+- `src/stores/cartStore.js` holds configured bikes and places one order per item.
+- `src/services/apiService.js` is the only place that knows the API shape and the
+  base URL.
 
-## Technology Stack
+## Stack
 
-* **Framework:** [Vue 3](https://vuejs.org/) (Composition API with `<script setup>`)  
-* **Build Tool:** [Vite](https://vitejs.dev/)  
-* **Routing:** [Vue Router](https://router.vuejs.org/)  
-* **State Management:** [Pinia](https://pinia.vuejs.org/)  
-* **Styling:** [Tailwind CSS](https://tailwindcss.com/)  
-* **API Client:** [Axios](https://axios-http.com/)  
-* **Icons:** [Lucide Vue Next](https://lucide.dev/)
+Vue 3 (`<script setup>`), Vite 6, Vue Router 4, Pinia 3, Tailwind CSS 4, Axios,
+Lucide icons. Tests with Vitest, lint with ESLint and `eslint-plugin-vue`.
 
-## Project Setup and Running
+## Run locally
 
-**Prerequisites:**
+Requirements: Node 20 or later and a running `marcus_api` on port 3001.
 
-* [Node.js](https://nodejs.org/) (includes npm) - Version 18+ recommended.  
-* A running instance of the corresponding backend API server.
-
-**Installation:**
-
-1.  **Clone the repository (if applicable):**  
-    ```bash  
-    git clone https://github.com/arkaitz97/marcus_gui
-    cd marcus_gui  
-    ```  
-
-2.  **Install Dependencies (if not starting from scratch):**  
-    ```bash  
-    npm install  
-    ```
-
-**Configuration:**
-
-1.  **API Base URL:** The API base URL is configured in `src/services/apiService.js` (currently set to `/api/v1`).  
-
-**Running the Development Server:**
-
-```bash  
+```bash
+git clone https://github.com/arkaitz97/marcus_gui
+cd marcus_gui
+npm ci
+cp .env.example .env        # optional: the default points at localhost:3001
 npm run dev
 ```
 
-This will start the Vite development server, typically available at http://localhost:5173 (or the next available port).  
-**Building for Production:**  
+Open `http://localhost:5173`. The API seeds one product, so the shop and the admin
+area have data on first load.
+
+Start the API first:
+
 ```bash
+cd ../marcus_api
+bin/rails db:setup
+bin/rails server -p 3001
+```
+
+`VITE_API_BASE_URL` overrides the API base URL at build time. The API allows the
+`localhost:5173` origin in `config/initializers/cors.rb`; a different dev port
+needs a matching CORS entry.
+
+Product photographs are not part of the demo: the detail view requests a named
+placeholder image.
+
+## Tests
+
+```bash
+npm test          # Vitest, one run
+npm run test:watch
+npm run lint
 npm run build
 ```
 
-This command bundles the application into the dist directory, optimized for deployment. The build process includes minification, which removes comments and whitespace.
+The suites cover the two stores that carry behaviour: adding, pricing and
+removing cart items; refusing an incomplete configuration; placing one order per
+item and keeping the cart when a call fails; and the validation and pricing
+transitions of the customization store against a mocked API. There is no
+component or end-to-end suite yet.
 
-## **API Specification**
+## Deploy
 
-The frontend interacts with a backend API, expected to be available under the configured base URL (/api/v1). Key endpoints include:
+The output is static, so any static host works:
 
-* /products, /products/:id (CRUD for Products)  
-* /products/:productId/parts, /products/:productId/parts/:partId (CRUD for Parts)  
-* /products/:productId/parts/:partId/part_options, /products/:productId/parts/:partId/part_options/:optionId (CRUD for Options)  
-* /part_restrictions, /part_restrictions/:id (CRUD for Restrictions)  
-* /price_rules, /price_rules/:id (CRUD for Price Rules)  
-* /orders, /orders/:id (CRUD for Orders)  
-* /product_configuration/validate_selection (POST)  
-* /product_configuration/calculate_price (POST)
+```bash
+VITE_API_BASE_URL=https://api.example.com/api/v1 npm run build
+```
 
-*(Refer to src/services/apiService.js for details on how the frontend calls these endpoints).*
+Upload `dist/`. Two things must match the API deployment:
 
-## **Potential Improvements / Future Work**
+1. The build-time `VITE_API_BASE_URL` must point at the deployed API.
+2. The API CORS configuration must allow the site origin.
 
-This application provides a solid foundation. Here are areas for future development:
+The repository has no deployment workflow. `npm run build` produces the artifact;
+serving it is a hosting decision.
 
-* **Dynamic Validation/Pricing:** Fully implement the dynamic option disabling and real-time price updates based on the /validate_selection and /calculate_price API responses.  
-* **UI/UX Refinements:** Improve loading states (skeletons), add toast notifications, enhance form validation, improve accessibility, use confirmation modals, and polish styling.  
-* **Admin Enhancements:**  
-  * Implement user-friendly selectors (dropdowns/search) instead of ID inputs for rules.  
-  * Display option/part names instead of IDs where appropriate (may require API changes or caching).  
-  * Add pagination, search, and filtering to admin lists.  
-  * Enhance the admin dashboard with useful widgets.  
-* **Customer Feature Enhancements:** Add user accounts, saved configurations, product search/filtering, visual customization previews.  
-* **Cart Persistence:** Use localStorage or sessionStorage to make the cart persist across browser sessions.  
-* **Testing:** Implement unit, integration, and/or end-to-end tests.  
-* **TypeScript:** Convert the codebase to TypeScript for better maintainability.
+## Documentation
+
+- [Design](docs/design.md): context, goals, non-goals, routing and state design,
+  alternatives.
+- [ADR 0001](docs/adr/0001-server-authoritative-validation.md): why validity and
+  price come from the API on every change.
+- [ADR 0002](docs/adr/0002-storefront-stores-vs-local-admin-state.md): why only
+  storefront state lives in Pinia.
+- [Contributing](CONTRIBUTING.md) and [security policy](SECURITY.md).
+
+## License
+
+MIT. See [LICENSE](LICENSE).
